@@ -1,0 +1,62 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="BaubleRound">
+        <item name="bauble_round">#2E8B57</item>
+    </style>
+
+    <style name="BaubleSmall">
+        <item name="bauble_small">#f22424</item>
+    </style>
+    <style name="BBB">
+        <item name="bauble_round">#000000</item>
+        <item name="bauble_small">#000000</item>
+        <item name="bauble_square">#000000</item>
+    </style>
+
+    <style name="GGR">
+        <item name="bauble_round">#2E8B57</item>
+        <item name="bauble_small">#2E8B57</item>
+        <item name="bauble_square">#f22424</item>
+    </style>
+    <style name="GGB">
+        <item name="bauble_round">#2E8B57</item>
+        <item name="bauble_small">#2E8B57</item>
+        <item name="bauble_square">#000000</item>
+    </style>
+    <style name="GBR">
+        <item name="bauble_round">#2E8B57</item>
+        <item name="bauble_small">#000000</item>
+        <item name="bauble_square">#f22424</item>
+    </style>
+    <style name="BGR">
+        <item name="bauble_round">#000000</item>
+        <item name="bauble_small">#2E8B57</item>
+        <item name="bauble_square">#f22424</item>
+    </style>
+    <style name="BBR">
+        <item name="bauble_round">#000000</item>
+        <item name="bauble_small">#000000</item>
+        <item name="bauble_square">#f22424</item>
+    </style>
+    <style name="GBB">
+        <item name="bauble_round">#2E8B57</item>
+        <item name="bauble_small">#000000</item>
+        <item name="bauble_square">#000000</item>
+    </style>
+
+    <style name="BGB">
+        <item name="bauble_round">#000000</item>
+        <item name="bauble_small">#2E8B57</item>
+        <item name="bauble_square">#000000</item>
+    </style>
+
+
+</resources>
