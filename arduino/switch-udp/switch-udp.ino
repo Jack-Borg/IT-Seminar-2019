@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+#include <AccelStepper.h>
 
 const char* ssid = "RAILNET";
 const char* password = "it-seminar-2019";
@@ -34,13 +35,18 @@ char outgoingPacket[255];
 char replyA[] = "At hall A";
 char replyB[] = "At hall B";
 char reply[] = "Hello there!";
-
-int deltaCount = 0;
 IPAddress remoteIP = IPAddress(0,0,0,0);
 uint16_t remotePort = 0;
+int switchSet = 0;
+int moveRange = 500;
+AccelStepper myStepper(8, MOTOR_PIN1,MOTOR_PIN3,MOTOR_PIN2,MOTOR_PIN4);
+
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
+   myStepper.setMaxSpeed(800);
+   myStepper.setAcceleration(800);
+   myStepper.setSpeed(200);
 
   Serial.begin(115200);
   Serial.println();
@@ -61,6 +67,7 @@ void setup() {
 
 void loop()
 {
+  myStepper.run();
   int packetSize = Udp.parsePacket();
   if (packetSize)
   {
@@ -70,27 +77,18 @@ void loop()
     // receive incoming UDP packets
     Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
     int len = Udp.read(incomingPacket, 255);
-    if (len > 1)
+    if (len > 0)
     {
-      if (incomingPacket[1] == TRAIN_CONTROL) {
-        speed = readInt(incomingPacket, 2);
-        Serial.printf("Speed: %d\n", speed);
-        applySpeed(speed);
+      if (incomingPacket[0] == SWITCH_SET) {
+        switchSet = incomingPacket[1];
+          if(switchSet == 1){
+            myStepper.moveTo(-moveRange);
+          } else {
+            myStepper.moveTo(moveRange);
+          }
         }
-      else if (incomingPacket[1] == TRAIN_BRAKE) {
-        speed = 0;
-        applySpeed(speed);
-        sendTrainInformation(0, 0, 0, 1);
-        }
-      else if (incomingPacket[1] == TRAIN_DESTINATION) {
-        /*speed = readInt(incomingPacket, 2);
-        Serial.printf("Speed: %d\n", speed);
-        applySpeed(speed);*/
-        tripMagnet = readInt(incomingPacket, 2);
-        }
-      else if (incomingPacket[1] == TRAIN_DIRECTION){
-        currentDirection = readInt(incomingPacket,2);
-        applySpeed(speed);
+      else if (incomingPacket[1] == SWITCH_STATUS) {
+        sendSwitchStatus(switchSet);
         }
       else {
         incomingPacket[len] = 0;
@@ -141,3 +139,13 @@ void sendDeviceInfo() {
   Udp.write(outgoingPacket, 3);
   Udp.endPacket();
   }
+
+
+void setSwitch(int switchSet) {
+  myStepper.run();
+  if(switchSet == 1){
+    myStepper.moveTo(-moveRange);
+  } else {
+    myStepper.moveTo(moveRange);
+  }
+}
