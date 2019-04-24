@@ -1,8 +1,11 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-const char* ssid = "RAILNET";
-const char* password = "it-seminar-2019";
+/*const char* ssid = "RAILNET";
+const char* password = "it-seminar-2019";*/
+
+const char* ssid = "Das phone";
+const char* password = "wwgu1535";
 
 #define MOTOR_PWM_PIN D1
 #define MOTOR_DIR_PIN D3
@@ -32,7 +35,7 @@ char replyB[] = "At hall B";
 char reply[] = "Hello there!";
 
 int currentSpeed = 0;
-int currentDirection = 1;
+int currentDirection = 0;
 const int minSpeedEquivalent = 512;
 const int maxSpeedEquivalent = 800;
 const int maxSpeed = 200;
@@ -121,6 +124,7 @@ void loop()
       distance = (duration/2) / 29.1;
       Serial.println(distance);
       if(distance < 20 ){
+      //if(checkDistance() < 20 ){
         trainStopTime = millis();
         Serial.print("   time: ");
         Serial.println(trainStopTime);
@@ -134,6 +138,19 @@ void loop()
       atStation = false;
     }
   }
+
+int checkDistance(){
+  long duration, distance;
+  digitalWrite(ULTRA_SOUND_TRIGG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(ULTRA_SOUND_TRIGG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(ULTRA_SOUND_TRIGG, LOW);
+  duration = pulseIn(ULTRA_SOUND_ECHO, HIGH);
+  distance = (duration/2) / 29.1;
+  Serial.println(distance);
+  return distance;
+}
 
 void broadcastExistence() {
   
