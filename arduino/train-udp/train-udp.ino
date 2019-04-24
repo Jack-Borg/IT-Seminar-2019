@@ -48,14 +48,14 @@ const int maxSpeed = 200;
 int speed = 0;
 
 bool atStation = false;
-int magnetsPassed = 2;
+int magnetsPassed = 0;
 int tripMagnet = 0;
 bool onTrip = false;
 bool stopAtStation = true;
 
-int freq = 1000;
+/*int freq = 1000;
 int horn_channel = 0;
-int resolution = 8;
+int resolution = 8;*/
 
 bool onMagnet = false;
 unsigned long onMagnetTime = 0;
@@ -89,7 +89,7 @@ void setup() {
 
   Udp.begin(localUdpPort);
   Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
-  digitalWrite(LED_PIN, LOW);
+  //digitalWrite(LED_PIN, LOW);
 
   /*ledcSetup(horn_channel, freq, resolution);
   ledcAttachPin(HORN_PIN, horn_channel);*/
@@ -223,7 +223,7 @@ void onHallB() {
       onTrip = false;
     }
   }
-  analogWrite(HORN_PIN, 500);
+  //analogWrite(HORN_PIN, 500);
   /*ledcWriteTone(horn_channel,1000);
   ledcWrite(horn_channel, freq);*/
 }
