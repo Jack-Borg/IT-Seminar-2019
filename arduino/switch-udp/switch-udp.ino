@@ -16,6 +16,9 @@ const char* password = "jjwb5593";*/
 #define MOTOR_PIN2 D2
 #define MOTOR_PIN3 D3
 #define MOTOR_PIN4 D5
+#define LIGHT_PIN_RED D7
+#define LIGHT_PIN_GREEN D8
+
 
 #define SWITCH_SET 7
 #define SWITCH_STATUS 8
@@ -40,13 +43,16 @@ uint16_t remotePort = 0;
 int switchSet = 0;
 int moveRange = 500;
 AccelStepper myStepper(8, MOTOR_PIN1,MOTOR_PIN3,MOTOR_PIN2,MOTOR_PIN4);
+const int lightId = 1;
 
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
-   myStepper.setMaxSpeed(800);
-   myStepper.setAcceleration(800);
-   myStepper.setSpeed(200);
+  pinMode(LIGHT_PIN_RED, OUTPUT);
+  pinMode(LIGHT_PIN_GREEN, OUTPUT);
+  myStepper.setMaxSpeed(800);
+  myStepper.setAcceleration(800);
+  myStepper.setSpeed(200);
 
   Serial.begin(115200);
   Serial.println();
@@ -62,6 +68,8 @@ void setup() {
   Udp.begin(localUdpPort);
   Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
   digitalWrite(LED_PIN, LOW);
+  digitalWrite(LIGHT_PIN_GREEN, HIGH);
+  digitalWrite(LIGHT_PIN_RED, LOW);
   }
 
 
@@ -81,15 +89,17 @@ void loop()
     {
       if (incomingPacket[0] == SWITCH_SET) {
         switchSet = incomingPacket[1];
-          if(switchSet == 1){
-            myStepper.moveTo(-moveRange);
-          } else {
-            myStepper.moveTo(moveRange);
-          }
+        setSwitch(switchSet);
         }
       else if (incomingPacket[1] == SWITCH_STATUS) {
         sendSwitchStatus(switchSet);
+      }
+      else if (incomingPacket[0] == LIGHT_SET) {
+        if(lightId == incomingPacket[1]){
+          setLight = incomingPacket[2];
         }
+        
+      }
       else {
         incomingPacket[len] = 0;
         Serial.printf("UDP packet contents: %s\n", incomingPacket);
@@ -142,10 +152,23 @@ void sendDeviceInfo() {
 
 
 void setSwitch(int switchSet) {
-  myStepper.run();
   if(switchSet == 1){
     myStepper.moveTo(-moveRange);
   } else {
     myStepper.moveTo(moveRange);
+  }
+}
+
+void setLight(int lightSet) {
+  switch (lightSet)
+  {
+    case 0:
+      digitalWrite(LIGHT_PIN_GREEN, LOW);
+      digitalWrite(LIGHT_PIN_RED, HIGH);
+      break;
+    case 1:
+      digitalWrite(LIGHT_PIN_GREEN, HIGH);
+      digitalWrite(LIGHT_PIN_RED, LOW);
+      break;
   }
 }
