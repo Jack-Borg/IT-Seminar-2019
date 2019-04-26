@@ -53,7 +53,7 @@ void setup() {
   pinMode(LIGHT_PIN_GREEN, OUTPUT);
   myStepper.setMaxSpeed(800);
   myStepper.setAcceleration(800);
-  myStepper.setSpeed(200);
+  myStepper.setSpeed(400);
 
   Serial.begin(115200);
   Serial.println();
