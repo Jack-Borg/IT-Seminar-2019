@@ -96,7 +96,7 @@ void loop()
       }
       else if (incomingPacket[0] == LIGHT_SET) {
         if(lightId == incomingPacket[1]){
-          setLight = incomingPacket[2];
+          setLight(incomingPacket[2]);
         }
         
       }
