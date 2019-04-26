@@ -44,6 +44,7 @@ int switchSet = 0;
 int moveRange = 500;
 AccelStepper myStepper(8, MOTOR_PIN1,MOTOR_PIN3,MOTOR_PIN2,MOTOR_PIN4);
 const int lightId = 1;
+int pState = 0;
 
 
 void setup() {
@@ -76,37 +77,38 @@ void setup() {
 void loop()
 {
   myStepper.run();
-  int packetSize = Udp.parsePacket();
-  if (packetSize)
-  {
-    Serial.println("recived");
-    remoteIP = Udp.remoteIP();
-    remotePort = Udp.remotePort();
-    // receive incoming UDP packets
-    Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
-    int len = Udp.read(incomingPacket, 255);
-    if (len > 0)
+  if(prepare()){
+    int packetSize = Udp.parsePacket();
+    if (packetSize)
     {
-      if (incomingPacket[0] == SWITCH_SET) {
-        switchSet = incomingPacket[1];
-        setSwitch(switchSet);
+      Serial.println("recived");
+      remoteIP = Udp.remoteIP();
+      remotePort = Udp.remotePort();
+      // receive incoming UDP packets
+      Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+      int len = Udp.read(incomingPacket, 255);
+      if (len > 0)
+      {
+        if (incomingPacket[0] == SWITCH_SET) {
+          switchSet = incomingPacket[1];
+          setSwitch(switchSet);
+          }
+        else if (incomingPacket[1] == SWITCH_STATUS) {
+          sendSwitchStatus(switchSet);
         }
-      else if (incomingPacket[1] == SWITCH_STATUS) {
-        sendSwitchStatus(switchSet);
-      }
-      else if (incomingPacket[0] == LIGHT_SET) {
-        if(lightId == incomingPacket[1]){
-          setLight(incomingPacket[2]);
+        else if (incomingPacket[0] == LIGHT_SET) {
+          if(lightId == incomingPacket[1]){
+            setLight(incomingPacket[2]);
+          }
+          
         }
-        
-      }
-      else {
-        incomingPacket[len] = 0;
-        Serial.printf("UDP packet contents: %s\n", incomingPacket);
+        else {
+          incomingPacket[len] = 0;
+          Serial.printf("UDP packet contents: %s\n", incomingPacket);
+          }
+  
         }
-
-      }
-
+    }
     // send back a reply, to the IP address and port we got the packet from
     }
   }
@@ -170,5 +172,40 @@ void setLight(int lightSet) {
       digitalWrite(LIGHT_PIN_GREEN, HIGH);
       digitalWrite(LIGHT_PIN_RED, LOW);
       break;
+  }
+}
+
+bool prepare(){
+  Serial.print("preparing ");
+  switch(pState)
+  {
+    case 0:
+      myStepper.moveTo(-moveRange);
+      pState = 1;
+      Serial.print("state 0");
+      return false;
+    case 1:
+      if(myStepper.distanceToGo() == 0){
+        myStepper.moveTo(moveRange);
+        pState = 2;  
+        Serial.print("state 1");
+      }
+      return false;
+    case 2:
+      if(myStepper.distanceToGo() == 0){
+        myStepper.moveTo(-moveRange);
+        pState = 3;  
+        Serial.print("state 2");
+      }
+      return false;
+    case 3:
+      if(myStepper.distanceToGo() == 0){
+        Serial.print("finished");
+        return true;
+      }
+      return false;
+    default:
+      Serial.println("error in prepare");
+      return false;
   }
 }
