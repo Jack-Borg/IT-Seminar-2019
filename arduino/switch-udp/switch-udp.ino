@@ -44,6 +44,7 @@ int switchSet = 0;
 int moveRange = 500;
 AccelStepper myStepper(8, MOTOR_PIN1,MOTOR_PIN3,MOTOR_PIN2,MOTOR_PIN4);
 const int lightId = 1;
+int pState = 0;
 
 
 void setup() {
@@ -76,6 +77,7 @@ void setup() {
 void loop()
 {
   myStepper.run();
+  if(prepare()){
   int packetSize = Udp.parsePacket();
   if (packetSize)
   {
@@ -109,6 +111,7 @@ void loop()
 
     // send back a reply, to the IP address and port we got the packet from
     }
+  }
   }
 
 void broadcastExistence() {
@@ -170,5 +173,41 @@ void setLight(int lightSet) {
       digitalWrite(LIGHT_PIN_GREEN, HIGH);
       digitalWrite(LIGHT_PIN_RED, LOW);
       break;
+  }
+}
+bool prepare(){
+ 
+  switch(pState)
+  {
+    case 0:
+      myStepper.moveTo(-moveRange);
+      pState = 1;
+      Serial.print("preparing ");
+      Serial.print("state 0");
+      return false;
+    case 1:
+      if(myStepper.distanceToGo() == 0){
+        myStepper.moveTo(moveRange);
+        pState = 2;  
+        Serial.print("preparing ");
+        Serial.print("state 1");
+      }
+      return false;
+    case 2:
+      if(myStepper.distanceToGo() == 0){
+        myStepper.moveTo(-moveRange);
+        pState = 3;  
+        Serial.print("preparing ");
+        Serial.print("state 2");
+      }
+      return false;
+    case 3:
+      if(myStepper.distanceToGo() == 0){
+        return true;
+      }
+      return false;
+    default:
+      Serial.println("error in prepare");
+      return false;
   }
 }
